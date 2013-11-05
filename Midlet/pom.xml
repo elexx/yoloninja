@@ -74,7 +74,7 @@
 						<MIDlet>
 							<name>USBTest</name>
 							<icon>/pyx.png</icon>
-							<class>tuwien.inso.USBTest</class>
+							<class>tuwien.inso.mnsa.midlet.Main</class>
 						</MIDlet>
 					</midlets>
 					<libs>
