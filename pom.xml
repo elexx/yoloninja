@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>Midlet</module>
+		<module>rxtx-tcp</module>
 	</modules>
 
 	<build>
