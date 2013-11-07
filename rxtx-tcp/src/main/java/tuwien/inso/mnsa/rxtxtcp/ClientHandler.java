@@ -138,7 +138,7 @@ public class ClientHandler {
 		@Override
 		public void run() {
 			try {
-				byte[] buffer = new byte[1];
+				byte[] buffer = new byte[COPY_BLOCK_SIZE];
 
 				while (true) {
 					try {
@@ -146,10 +146,7 @@ public class ClientHandler {
 
 						if (read == -1)
 							break;
-						
-						if(read == 1) {
-							System.out.println(Thread.currentThread().getName() + " - read: " + buffer[0] + " (" + new String(new char[]{(char) buffer[0]}) + ")");
-						}
+
 						output.write(buffer, 0, read);
 						output.flush();
 					} catch (SocketTimeoutException ignored) {
