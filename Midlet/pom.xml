@@ -13,7 +13,6 @@
 	<name>USBTest Midlet</name>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<me2Version>2.0.3</me2Version>
 		<j2me.midlet.vendor>${project.organization.name}</j2me.midlet.vendor>
 		<j2me.midlet.name>${project.name}</j2me.midlet.name>
