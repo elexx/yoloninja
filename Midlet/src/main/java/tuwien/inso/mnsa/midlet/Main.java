@@ -56,7 +56,6 @@ public class Main extends MIDlet implements CommandListener, TargetListener {
 	public void destroyApp(boolean unconditional) {
 	}
 
-	@Override
 	public void commandAction(Command c, Displayable s) {
 		if (c == exitCommand) {
 			log.println("Exiting...");
@@ -64,7 +63,6 @@ public class Main extends MIDlet implements CommandListener, TargetListener {
 		}
 	}
 
-	@Override
 	public void targetDetected(TargetProperties[] targetProperties) {
 		if (targetProperties.length == 0) {
 			return;
