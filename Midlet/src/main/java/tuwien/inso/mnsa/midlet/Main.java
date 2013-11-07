@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.microedition.contactless.ContactlessException;
+import javax.microedition.contactless.DiscoveryManager;
+import javax.microedition.contactless.TargetListener;
+import javax.microedition.contactless.TargetProperties;
+import javax.microedition.contactless.TargetType;
 import javax.microedition.io.CommConnection;
 import javax.microedition.io.Connector;
 import javax.microedition.lcdui.Command;
@@ -13,9 +18,8 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.TextBox;
 import javax.microedition.midlet.MIDlet;
 
-public class Main extends MIDlet implements CommandListener {
+public class Main extends MIDlet implements CommandListener, TargetListener {
 	private final Command exitCommand;
-	private final Display display;
 	private Logger log;
 	private CommConnection comm = null;
 	private InputStream is = null;
@@ -23,28 +27,51 @@ public class Main extends MIDlet implements CommandListener {
 	private Thread thread;
 
 	public Main() {
-		display = Display.getDisplay(this);
 		exitCommand = new Command("Exit", Command.EXIT, 1);
 	}
 
+	@Override
 	public void startApp() {
 		TextBox textbox = new TextBox("USBTest", "", 8000, 0);
 		textbox.addCommand(exitCommand);
 		textbox.setCommandListener(this);
-		display.setCurrent(textbox);
 		log = new Logger(textbox);
+
+		Display.getDisplay(this).setCurrent(textbox);
 		openUSBConnection();
+
+		try {
+			DiscoveryManager dm = DiscoveryManager.getInstance();
+			dm.addTargetListener(this, TargetType.NDEF_TAG);
+		} catch (ContactlessException ce) {
+			log.println("Unable to register TargetListener: " + ce.toString());
+		}
 	}
 
-	public void pauseApp() {}
+	@Override
+	public void pauseApp() {
+	}
 
-	public void destroyApp(boolean unconditional) {}
+	@Override
+	public void destroyApp(boolean unconditional) {
+	}
 
+	@Override
 	public void commandAction(Command c, Displayable s) {
 		if (c == exitCommand) {
 			log.println("Exiting...");
 			notifyDestroyed();
 		}
+	}
+
+	@Override
+	public void targetDetected(TargetProperties[] targetProperties) {
+		if (targetProperties.length == 0) {
+			return;
+		}
+
+		TargetProperties tmp = targetProperties[0];
+		log.println("UID read: " + tmp.getUid());
 	}
 
 	public void openUSBConnection() {
@@ -74,6 +101,7 @@ public class Main extends MIDlet implements CommandListener {
 			log.println("send EXIT to quit");
 
 			thread = new Thread() {
+				@Override
 				public void run() {
 					listenUSB();
 				}
@@ -97,7 +125,8 @@ public class Main extends MIDlet implements CommandListener {
 				if (is.available() == 0) {
 					try {
 						Thread.sleep(10);
-					} catch (InterruptedException ignored) {}
+					} catch (InterruptedException ignored) {
+					}
 					continue;
 				}
 

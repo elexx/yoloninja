@@ -14,6 +14,6 @@ public class Logger {
 	}
 
 	public void print(String msg) {
-		textBox.setString((textBox.getString()).concat(msg));
+		textBox.setString(textBox.getString() + msg);
 	}
 }
