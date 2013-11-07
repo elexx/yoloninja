@@ -13,8 +13,6 @@
 	<name>rxtx-tcp</name>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
 		<java.library.path>/usr/lib/jni/</java.library.path>
 	</properties>
 
