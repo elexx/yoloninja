@@ -42,7 +42,7 @@ public class Server implements Runnable {
 		for (PortDefinition definition : ports) {
 			Server server = new Server(definition);
 			Thread thread = new Thread(server, definition.getDeviceName() + " at " + definition.getTcpPort());
-			
+
 			thread.start();
 		}
 	}
@@ -84,7 +84,7 @@ public class Server implements Runnable {
 
 				work();
 
-			} catch (Exception ex) {
+			} catch (Throwable ex) {
 				System.err.println("Exception in listener thread " + Thread.currentThread().getName() + ": " + ex);
 				ex.printStackTrace();
 
