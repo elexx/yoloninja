@@ -17,6 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClientHandler {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
+
 	private final Socket client;
 	private final PortDefinition port;
 
@@ -60,7 +63,7 @@ public class ClientHandler {
 				}
 			}
 
-			Server.log("exit condition: " + toClient.running + " / " + fromClient.running);
+			LOG.debug("exit condition: {} / {}", toClient.running, fromClient.running);
 
 			// 1: sleep some time, to let the two channels close in a nice manner
 			// 2: then, close the streams, probably forcing any blocking i/o to cancel
@@ -89,16 +92,15 @@ public class ClientHandler {
 			sleep(50);
 
 			if (toClient.running)
-				Server.log("client thread " + toClientT.getName() + " (to client) not finished normally (zombie thread)");
+				LOG.debug("client thread {} (to client) not finished normally (zombie thread)", toClientT.getName());
 			if (fromClient.running)
-				Server.log("client thread " + fromClientT.getName() + " (from client) not finished normally (zombie thread)");
-
+				LOG.debug("client thread {} (from client) not finished normally (zombie thread)", fromClientT.getName());
 			if (toClient.throwable != null)
-				Server.log("client thread " + toClientT.getName() + " (to client) finished abnormally: " + toClient.throwable.toString());
+				LOG.debug("client thread {} (to client) finished abnormally: {}", toClientT.getName(), toClient.throwable.toString());
 			if (fromClient.throwable != null)
-				Server.log("client thread " + fromClientT.getName() + " (from client) finished abnormally: " + fromClient.throwable.toString());
+				LOG.debug("client thread {} (from client) finished abnormally: {}", fromClientT.getName(), fromClient.throwable.toString());
 
-			Server.log("client exiting");
+			LOG.info("client exiting");
 		} finally {
 			serialPort.close();
 		}
