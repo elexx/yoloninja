@@ -1,5 +1,6 @@
 package tuwien.inso.mnsa.rxtxtcp;
 
+import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.UnsupportedCommOperationException;
@@ -9,8 +10,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Enumeration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Server implements Runnable {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
 	public static void main(String[] args) {
 		String resource;
@@ -23,6 +30,8 @@ public class Server implements Runnable {
 			System.err.println("Usage: Server [ports.conf location]");
 			return;
 		}
+		
+		showPorts();
 
 		PortDefinition[] ports;
 		try {
@@ -45,6 +54,21 @@ public class Server implements Runnable {
 
 			thread.start();
 		}
+	}
+	
+	private static void showPorts() {
+		@SuppressWarnings("unchecked")
+		Enumeration<CommPortIdentifier> ports = CommPortIdentifier.getPortIdentifiers();
+
+		int portn = 0;
+		LOG.info("Listing ports:");
+		while (ports.hasMoreElements()) {
+			CommPortIdentifier port = ports.nextElement();
+			portn++;
+
+			LOG.info(port.getName() + " (" + port.getPortType() + ", current owner " + port.getCurrentOwner() + ")");
+		}
+		LOG.info("Port listing done, found " + portn + " ports.");
 	}
 
 	private PortDefinition portDefinition;

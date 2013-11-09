@@ -13,8 +13,10 @@
 	<name>rxtx-tcp</name>
 
 	<properties>
-		<java.library.path>/usr/lib/jni/</java.library.path>
+		<mainClass>tuwien.inso.mnsa.rxtxtcp.Server</mainClass>
+<!-- 		<mainClass>tuwien.inso.mnsa.rxtxtcp.PortFinder</mainClass> -->
 	</properties>
+
 
 	<build>
 		<plugins>
@@ -39,7 +41,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>tuwien.inso.mnsa.rxtxtcp.Server</mainClass>
+									<mainClass>${mainClass}</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
@@ -49,15 +51,34 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.2.1</version>
+				<configuration>
+<!-- 					<mainClass>${mainClass}</mainClass> -->
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
 		<!-- rxtx: serial i/o (required native rxtx library installed) -->
 		<dependency>
-			<groupId>org.rxtx</groupId>
-			<artifactId>rxtx</artifactId>
-			<version>2.1.7</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.0.13</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.neuronrobotics</groupId>
+			<artifactId>nrjavaserial</artifactId>
+			<version>3.7.5.1</version>
 		</dependency>
 	</dependencies>
 </project>

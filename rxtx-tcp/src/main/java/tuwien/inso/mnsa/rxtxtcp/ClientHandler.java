@@ -13,6 +13,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClientHandler {
 	private final Socket client;
 	private final PortDefinition port;
@@ -103,6 +106,23 @@ public class ClientHandler {
 
 	@SuppressWarnings("deprecation")
 	private void stop(Thread thread) {
+		//TODO: dont use deprecated APIs
+
+		// this is meant to be the last-resort method of forcing
+		// a thread to die. since it didn't respond to interrupting
+		// or closing its COM port, we know no other way of killing it.
+		//
+		// argued by [1], however, is the fact that a thread will not
+		// respond to thread.stop() if it doesn't respond to 
+		// thread.interrupt() - this has to be investigated further.
+		//
+		// anyway, this situation will probably never happen and
+		// when it does, the purpose of .stop() is to avoid leaving
+		// serial ports open by all means (the next alternative here
+		// would be to kill the VM itself)
+		//
+		// [1] http://docs.oracle.com/javase/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
+
 		if (thread.isAlive())
 			thread.stop();
 	}
