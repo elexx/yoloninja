@@ -22,6 +22,7 @@
 	<modules>
 		<module>Midlet</module>
 		<module>rxtx-tcp</module>
+		<module>nokiacardterminal</module>
 	</modules>
 
 	<build>
