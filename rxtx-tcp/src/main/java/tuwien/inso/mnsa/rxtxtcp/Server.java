@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 import java.util.Enumeration;
 
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class Server implements Runnable {
 		}
 
 		for (PortDefinition definition : ports) {
-			System.out.println("Proxying clients from " + definition.getTcpPort() + " to " + definition.getDeviceName());
+			LOG.debug("Proxying clients from {} to {}", definition.getTcpPort(), definition.getDeviceName());
 			Server server = new Server(definition);
 			Thread thread = new Thread(server, definition.getDeviceName() + " at " + definition.getTcpPort());
 
