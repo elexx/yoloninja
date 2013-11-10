@@ -30,7 +30,6 @@ public class Main extends MIDlet implements CommandListener, TargetListener {
 		exitCommand = new Command("Exit", Command.EXIT, 1);
 	}
 
-	@Override
 	public void startApp() {
 		TextBox textbox = new TextBox("USBTest", "", 8000, 0);
 		textbox.addCommand(exitCommand);
@@ -48,11 +47,9 @@ public class Main extends MIDlet implements CommandListener, TargetListener {
 		}
 	}
 
-	@Override
 	public void pauseApp() {
 	}
 
-	@Override
 	public void destroyApp(boolean unconditional) {
 	}
 
@@ -99,7 +96,6 @@ public class Main extends MIDlet implements CommandListener, TargetListener {
 			log.println("send EXIT to quit");
 
 			thread = new Thread() {
-				@Override
 				public void run() {
 					listenUSB();
 				}
