@@ -2,6 +2,9 @@ package tuwien.inso.mnsa.rxtxtcp;
 
 import gnu.io.SerialPort;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -14,9 +17,18 @@ public class ConfigParser {
 	public static List<PortDefinition> getPortDefinitions() throws IOException {
 		ClassLoader classLoader = ConfigParser.class.getClassLoader();
 
-		try (InputStream is = classLoader.getResourceAsStream(PORTS_CONF)) {
-			return getPortDefinitions(is);
+		if (new File(PORTS_CONF).canRead()) {
+			try (InputStream is = new FileInputStream(PORTS_CONF)) {
+				return getPortDefinitions(is);
+			}
 		}
+
+		try (InputStream is = classLoader.getResourceAsStream(PORTS_CONF)) {
+			if (is != null)
+				return getPortDefinitions(is);
+		}
+
+		throw new FileNotFoundException(PORTS_CONF + " not found (neither in working directory nor in classpath)");
 	}
 
 	public static List<PortDefinition> getPortDefinitions(InputStream is) {
@@ -79,7 +91,7 @@ public class ConfigParser {
 
 					currentPart.append(escaped);
 				}
-			} else if (c == ':') { 
+			} else if (c == ':') {
 				list.add(currentPart.toString().trim());
 				currentPart = new StringBuilder();
 			} else if (c == '#') {

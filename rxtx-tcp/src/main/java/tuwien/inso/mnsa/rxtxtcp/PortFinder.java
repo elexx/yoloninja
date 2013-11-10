@@ -1,7 +1,6 @@
 package tuwien.inso.mnsa.rxtxtcp;
 
 import gnu.io.CommPortIdentifier;
-
 import java.util.Enumeration;
 
 public class PortFinder {

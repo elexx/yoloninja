@@ -13,7 +13,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClientHandler {
+
+	private static final Logger LOG = LoggerFactory.getLogger(ClientHandler.class);
+
 	private final Socket client;
 	private final PortDefinition port;
 
@@ -57,7 +63,7 @@ public class ClientHandler {
 				}
 			}
 
-			Server.log("exit condition: " + toClient.running + " / " + fromClient.running);
+			LOG.debug("exit condition: {} / {}", toClient.running, fromClient.running);
 
 			// 1: sleep some time, to let the two channels close in a nice manner
 			// 2: then, close the streams, probably forcing any blocking i/o to cancel
@@ -86,16 +92,15 @@ public class ClientHandler {
 			sleep(50);
 
 			if (toClient.running)
-				Server.log("client thread " + toClientT.getName() + " (to client) not finished normally (zombie thread)");
+				LOG.debug("client thread {} (to client) not finished normally (zombie thread)", toClientT.getName());
 			if (fromClient.running)
-				Server.log("client thread " + fromClientT.getName() + " (from client) not finished normally (zombie thread)");
-
+				LOG.debug("client thread {} (from client) not finished normally (zombie thread)", fromClientT.getName());
 			if (toClient.throwable != null)
-				Server.log("client thread " + toClientT.getName() + " (to client) finished abnormally: " + toClient.throwable.toString());
+				LOG.debug("client thread {} (to client) finished abnormally: {}", toClientT.getName(), toClient.throwable.toString());
 			if (fromClient.throwable != null)
-				Server.log("client thread " + fromClientT.getName() + " (from client) finished abnormally: " + fromClient.throwable.toString());
+				LOG.debug("client thread {} (from client) finished abnormally: {}", fromClientT.getName(), fromClient.throwable.toString());
 
-			Server.log("client exiting");
+			LOG.info("client exiting");
 		} finally {
 			serialPort.close();
 		}
@@ -103,6 +108,23 @@ public class ClientHandler {
 
 	@SuppressWarnings("deprecation")
 	private void stop(Thread thread) {
+		//TODO: dont use deprecated APIs
+
+		// this is meant to be the last-resort method of forcing
+		// a thread to die. since it didn't respond to interrupting
+		// or closing its COM port, we know no other way of killing it.
+		//
+		// argued by [1], however, is the fact that a thread will not
+		// respond to thread.stop() if it doesn't respond to 
+		// thread.interrupt() - this has to be investigated further.
+		//
+		// anyway, this situation will probably never happen and
+		// when it does, the purpose of .stop() is to avoid leaving
+		// serial ports open by all means (the next alternative here
+		// would be to kill the VM itself)
+		//
+		// [1] http://docs.oracle.com/javase/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
+
 		if (thread.isAlive())
 			thread.stop();
 	}
@@ -138,7 +160,7 @@ public class ClientHandler {
 		@Override
 		public void run() {
 			try {
-				byte[] buffer = new byte[1];
+				byte[] buffer = new byte[COPY_BLOCK_SIZE];
 
 				while (true) {
 					try {
@@ -146,10 +168,7 @@ public class ClientHandler {
 
 						if (read == -1)
 							break;
-						
-						if(read == 1) {
-							System.out.println(Thread.currentThread().getName() + " - read: " + buffer[0] + " (" + new String(new char[]{(char) buffer[0]}) + ")");
-						}
+
 						output.write(buffer, 0, read);
 						output.flush();
 					} catch (SocketTimeoutException ignored) {
