@@ -8,19 +8,20 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>nokiacardterminal</artifactId>
+	<artifactId>commprotocol</artifactId>
 	<packaging>jar</packaging>
-	<name>Nokia Card Terminal</name>
+	<name>Communication Protocol</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>tuwien.inso.mnsa</groupId>
-			<artifactId>commprotocol</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-		</dependency>
-	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.4</source>
+					<target>1.4</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

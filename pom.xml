@@ -23,6 +23,7 @@
 		<module>Midlet</module>
 		<module>rxtx-tcp</module>
 		<module>nokiacardterminal</module>
+		<module>commprotocol</module>
 	</modules>
 
 	<build>

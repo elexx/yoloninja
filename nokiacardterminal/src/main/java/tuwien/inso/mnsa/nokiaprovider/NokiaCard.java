@@ -1,5 +1,7 @@
 package tuwien.inso.mnsa.nokiaprovider;
 
+import java.io.IOException;
+
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
@@ -7,22 +9,33 @@ import javax.smartcardio.CardException;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tuwien.inso.mnsa.nokiaprovider.intern.Connection;
+
 /**
  * Card implementation class.
  */
 @SuppressWarnings("restriction")
 public class NokiaCard extends Card {
+
+	private static final Logger LOG = LoggerFactory.getLogger(NokiaCard.class);
+
 	// default protocol
 	private static final String T0_PROTOCOL = "T=0";
 	// default ATR - NXP JCOP 31/36K
 	private static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
+
+	private final Connection connection;
 
 	// ATR
 	private final ATR atr;
 
 	private final CardChannel basicChannel;
 
-	public NokiaCard() {
+	public NokiaCard(Connection connection) {
+		this.connection = connection;
 		atr = new ATR(NokiaCard.DEFAULT_ATR.getBytes());
 		basicChannel = new NokiaChannel(this, 0);
 	}
@@ -84,8 +97,11 @@ public class NokiaCard extends Card {
 	public void disconnect(boolean bln) throws CardException {
 	}
 
-	public ResponseAPDU transmitCommand(CommandAPDU capdu) {
-		System.err.println("Hier kommt ein Transmit Command");
-		return null;
+	public ResponseAPDU transmitCommand(CommandAPDU capdu) throws CardException {
+		try {
+			return connection.transceive(capdu);
+		} catch (IOException e) {
+			throw new CardException(e);
+		}
 	}
 }

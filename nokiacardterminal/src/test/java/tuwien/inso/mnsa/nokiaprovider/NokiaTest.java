@@ -2,6 +2,7 @@ package tuwien.inso.mnsa.nokiaprovider;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Provider;
@@ -47,7 +48,7 @@ public class NokiaTest {
 
 	@Test
 	public void testNokiaProvider() throws NoSuchAlgorithmException, NoSuchProviderException, CardException {
-		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", null);
+		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("localhost", 7989));
 
 		CardTerminals cardTerminals = terminalFactory.terminals();
 		List<CardTerminal> cardTerminalList = cardTerminals.list();
