@@ -41,6 +41,11 @@
 			<version>1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>tuwien.inso.mnsa</groupId>
+			<artifactId>commprotocol</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
