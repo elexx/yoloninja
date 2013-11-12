@@ -64,4 +64,8 @@ public class Message {
 		return payload;
 	}
 
+	public String toString() {
+		return "MTY[" + messageType + "] LN[" + length + "] PY[" + payload + "]";
+	}
+
 }
