@@ -35,13 +35,13 @@ public class Message {
 
 	public static Message createFrom(InputStream inStream) throws IOException {
 		byte[] buffer = new byte[2];
-		inStream.read(buffer, 0, 2);
+		readExacltyToLength(inStream, buffer, 0, 2);
 
 		byte messageType = buffer[OFFSET_MTY];
 		byte length = buffer[OFFSET_LN];
 
 		byte[] payload = new byte[messageType];
-		inStream.read(payload, 0, length);
+		readExacltyToLength(inStream, payload, 0, length);
 
 		return new Message(messageType, length, payload);
 	}
@@ -66,6 +66,16 @@ public class Message {
 
 	public String toString() {
 		return "MTY[" + messageType + "] LN[" + length + "] PY[" + payload + "]";
+	}
+
+	private static void readExacltyToLength(InputStream inStream, byte[] output, int offset, int length) throws IOException {
+		int total = 0;
+		while (offset + total < length) {
+			int read = inStream.read(output, offset + total, length - total);
+			if (read == -1)
+				break;
+			total += read;
+		}
 	}
 
 }
