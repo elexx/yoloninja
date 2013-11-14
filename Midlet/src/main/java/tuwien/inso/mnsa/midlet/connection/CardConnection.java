@@ -10,7 +10,7 @@ import javax.microedition.contactless.sc.ISO14443Connection;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
-import tuwien.inso.mnsa.midlet.Logger;
+import tuwien.inso.mnsa.midlet.debug.Logger;
 
 public class CardConnection implements TargetListener {
 

@@ -2,6 +2,7 @@ package tuwien.inso.mnsa.midlet;
 
 import javax.microedition.contactless.ContactlessException;
 import javax.microedition.contactless.DiscoveryManager;
+import javax.microedition.contactless.TargetListener;
 import javax.microedition.contactless.TargetType;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -12,6 +13,8 @@ import javax.microedition.midlet.MIDlet;
 
 import tuwien.inso.mnsa.midlet.connection.CardConnection;
 import tuwien.inso.mnsa.midlet.connection.USBConnection;
+import tuwien.inso.mnsa.midlet.debug.Logger;
+import tuwien.inso.mnsa.midlet.debug.UidPrinter;
 
 public class Main extends MIDlet {
 
@@ -41,11 +44,15 @@ public class Main extends MIDlet {
 		cardConnection = new CardConnection();
 		usbConnection = new USBConnection(cardConnection);
 
+		TargetListener uidPrinter = new UidPrinter();
+
 		new Thread(usbConnection).start();
 
 		try {
 			DiscoveryManager dm = DiscoveryManager.getInstance();
 			dm.addTargetListener(cardConnection, TargetType.ISO14443_CARD);
+			dm.addTargetListener(uidPrinter, TargetType.NDEF_TAG);
+			dm.addTargetListener(uidPrinter, TargetType.RFID_TAG);
 		} catch (ContactlessException ce) {
 			LOG.print("Unable to register TargetListener: " + ce.toString());
 		}

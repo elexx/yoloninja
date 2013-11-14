@@ -1,4 +1,4 @@
-package tuwien.inso.mnsa.midlet;
+package tuwien.inso.mnsa.midlet.debug;
 
 import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Form;

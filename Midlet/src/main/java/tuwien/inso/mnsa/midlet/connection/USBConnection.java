@@ -9,7 +9,7 @@ import javax.microedition.io.CommConnection;
 import javax.microedition.io.Connection;
 import javax.microedition.io.Connector;
 
-import tuwien.inso.mnsa.midlet.Logger;
+import tuwien.inso.mnsa.midlet.debug.Logger;
 import tuwien.inso.mnsa.protocol.Message;
 
 public class USBConnection implements Runnable {
