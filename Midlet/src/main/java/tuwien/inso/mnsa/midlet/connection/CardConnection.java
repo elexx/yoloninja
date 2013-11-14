@@ -16,10 +16,12 @@ public class CardConnection implements TargetListener {
 
 	private static final Logger LOG = Logger.getLogger("CardConnection");
 
+	private TargetProperties cardProperties;
 	private ISO14443Connection connection;
 
 	public void close() {
-		closeSilently(connection);
+		if (connection != null)
+			closeSilently(connection);
 		connection = null;
 	}
 
@@ -33,8 +35,16 @@ public class CardConnection implements TargetListener {
 		} catch (IOException e) {
 			closeSilently(connection);
 			connection = null;
+			cardProperties = null;
 			throw e;
 		}
+	}
+
+	public String getUid() {
+		if (cardProperties != null)
+			return cardProperties.getUid();
+		else
+			return null;
 	}
 
 	public void targetDetected(TargetProperties[] targetProperties) {
@@ -46,10 +56,14 @@ public class CardConnection implements TargetListener {
 		LOG.print("UID read: " + tmp.getUid());
 
 		if (tmp.hasTargetType(TargetType.ISO14443_CARD) && tmp.getConnectionNames().length > 0) {
+			if (connection != null) {
+				closeSilently(connection);
+			}
 			try {
 				String url = tmp.getUrl(tmp.getConnectionNames()[0]);
 				LOG.print("openning connection " + url);
 				connection = (ISO14443Connection) Connector.open(url);
+				cardProperties = tmp;
 			} catch (IOException e) {
 				LOG.print("could not create iso14443 connection: " + e.toString());
 				return;

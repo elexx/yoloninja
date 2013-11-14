@@ -14,7 +14,7 @@ import tuwien.inso.mnsa.protocol.Message;
 
 public class USBConnection implements Runnable {
 
-	private static final Logger LOG = Logger.getLogger("Connection");
+	private static final Logger LOG = Logger.getLogger("USBConnection");
 
 	private static final String COMMPORT_IDENTIFIER = "comm:USB1";
 
@@ -39,7 +39,7 @@ public class USBConnection implements Runnable {
 				inStream = commConnection.openInputStream();
 				outStream = commConnection.openOutputStream();
 			} catch (IOException e) {
-				LOG.print(e);
+				LOG.print("comm conn", e);
 				return;
 			}
 
@@ -47,41 +47,80 @@ public class USBConnection implements Runnable {
 
 			inCommunication = true;
 			while (inCommunication) {
+				Message request;
 				try {
-					Message request = Message.createFrom(inStream);
-					Message response = null;
-					LOG.print(request.toString());
-
-					switch(request.getMessageType()) {
-					case Message.TYPE_APDU_COMMAND:
-						byte[] responsePayload = cardConnection.exchangeData(request.getPayload());
-						response = Message.createFrom(Message.TYPE_APDU_RESPONSE, (byte) responsePayload.length, responsePayload);
-						break;
-
-					case Message.TYPE_TEST:
-						LOG.print("Got TEST Message");
-						response = request;
-						break;
-
-					default:
-						LOG.print("Got unknown Message [0x" + Integer.toHexString(request.getMessageType() & 0xFF) + "]");
-						break;
-					}
-
-					if (response != null) {
-						LOG.print("answering with " + response.toString());
-						response.write(outStream);
-						outStream.flush();
-					}
-				} catch (IOException e) {
-					LOG.print(e);
+					request = Message.createFrom(inStream);
+				}catch (IOException e) {
+					LOG.print("read message" + e);
 					closeSilently(inStream);
 					closeSilently(outStream);
 					closeSilently(commConnection);
 					isRunning = false;
 					inCommunication = false;
-				} catch (ContactlessException e) {
-					LOG.print(e);
+					break;
+				}
+
+				Message response = null;
+				LOG.print("Request: " + request.toString());
+
+				byte messageType = request.getMessageType();
+
+				switch (messageType) {
+				case Message.TYPE_TEST:
+					LOG.print("Got TEST Message");
+					response = request;
+					break;
+
+				case Message.TYPE_APDU:
+					byte[] responsePayload;
+					try {
+						if (cardConnection.isCardPresent()) {
+							responsePayload = cardConnection.exchangeData(request.getPayload());
+							response = Message.createFrom(messageType, (byte) responsePayload.length, responsePayload);
+						} else {
+							LOG.print("TYPE_APDU request, but no card present");
+							response = Message.createWithoutPayload(Message.TYPE_ERROR);
+						}
+					} catch (IOException e) {
+						LOG.print("apdu", e);
+						response = Message.createWithoutPayload(Message.TYPE_ERROR);
+					} catch (ContactlessException e) {
+						LOG.print("apdu", e);
+						response = Message.createWithoutPayload(Message.TYPE_ERROR);
+					}
+
+					break;
+
+				case Message.TYPE_ATR:
+					if (cardConnection.isCardPresent()) {
+						byte[] uid = cardConnection.getUid().getBytes();
+						response = Message.createFrom(messageType, (byte) uid.length, uid);
+					} else {
+						LOG.print("TYPE_ATR request, but no card present");
+						response = Message.createWithoutPayload(Message.TYPE_ERROR);
+					}
+					break;
+
+
+				default:
+					LOG.print("Got unknown Message [0x" + Integer.toHexString(messageType & 0xFF) + "]");
+					break;
+				}
+
+				try {
+					if (response != null) {
+						LOG.print("answering with " + response.toString());
+						response.write(outStream);
+						outStream.flush();
+					}
+				}catch (IOException e) {
+					LOG.print("sending response", e);
+					closeSilently(inStream);
+					closeSilently(outStream);
+					closeSilently(commConnection);
+					isRunning = false;
+					inCommunication = false;
+					break;
 				}
 			}
 		}

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import javax.smartcardio.ATR;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
@@ -62,13 +63,33 @@ public class TCPConnection implements Connection {
 
 		byte length = (byte) (apdubuffer.length & 0xff);
 
-		Message requestMessage = Message.createFrom(Message.TYPE_APDU_COMMAND, length, apdubuffer);
+		Message requestMessage = Message.createFrom(Message.TYPE_APDU, length, apdubuffer);
 		requestMessage.write(outStream);
+		outStream.flush();
 
 		Message responseMessage = Message.createFrom(inStream);
+		assertNoErrorOrThrowException(responseMessage);
 
 		ResponseAPDU response = new ResponseAPDU(responseMessage.getPayload());
 		return response;
+	}
+
+	@Override
+	public ATR getATR() throws IOException {
+		Message requestMessage = Message.createWithoutPayload(Message.TYPE_ATR);
+		requestMessage.write(outStream);
+		outStream.flush();
+
+		Message responseMessage = Message.createFrom(inStream);
+		assertNoErrorOrThrowException(responseMessage);
+
+		return new ATR(responseMessage.getPayload());
+	}
+
+	private void assertNoErrorOrThrowException(Message m) throws IOException {
+		if (m.getMessageType() == Message.TYPE_ERROR) {
+			throw new IOException("Phone sent TYPE_ERROR - check phone output for more information. (Maybe no card present?)");
+		}
 	}
 
 	private void closeSilently(Closeable closeable) {

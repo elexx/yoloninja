@@ -24,6 +24,7 @@
 		<module>rxtx-tcp</module>
 		<module>nokiacardterminal</module>
 		<module>commprotocol</module>
+		<module>clitestclient</module>
 	</modules>
 
 	<build>

@@ -22,8 +22,8 @@ public final class Logger {
 		this.prefix = prefix;
 	}
 
-	public void print(Throwable t) {
-		print(t.getMessage());
+	public void print(String message, Throwable t) {
+		print(message + ": " + t.getClass().getName() + ": " + t.getMessage());
 	}
 
 	public void print(String message) {

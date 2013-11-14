@@ -22,30 +22,27 @@ public class NokiaCard extends Card {
 
 	private static final Logger LOG = LoggerFactory.getLogger(NokiaCard.class);
 
-	// default protocol
 	private static final String T0_PROTOCOL = "T=0";
 	// default ATR - NXP JCOP 31/36K
 	private static final String DEFAULT_ATR = "3BFA1800008131FE454A434F5033315632333298";
 
 	private final Connection connection;
 
-	// ATR
-	private final ATR atr;
-
 	private final CardChannel basicChannel;
 
 	public NokiaCard(Connection connection) {
 		this.connection = connection;
-		atr = new ATR(NokiaCard.DEFAULT_ATR.getBytes());
 		basicChannel = new NokiaChannel(this, 0);
 	}
 
-	/**
-	 * Returns ATR configured by system property
-	 */
 	@Override
 	public ATR getATR() {
-		return atr;
+		try {
+			return connection.getATR();
+		} catch (IOException e) {
+			LOG.debug("no connection to card", e);
+			return new ATR(NokiaCard.DEFAULT_ATR.getBytes());
+		}
 	}
 
 	/**

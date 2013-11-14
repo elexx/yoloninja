@@ -2,6 +2,7 @@ package tuwien.inso.mnsa.nokiaprovider.intern;
 
 import java.io.IOException;
 
+import javax.smartcardio.ATR;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 
@@ -15,5 +16,7 @@ public interface Connection {
 	boolean isConnected();
 
 	ResponseAPDU transceive(CommandAPDU capdu) throws IOException;
+
+	ATR getATR() throws IOException;
 
 }
