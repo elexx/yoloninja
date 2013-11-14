@@ -32,7 +32,7 @@ public class ClientHandler {
 	}
 
 	public void connect() throws PortInUseException, NoSuchPortException, UnsupportedCommOperationException, IOException {
-		SerialPort serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(port.getDeviceName()).open("rxtx-tcp", 100);
+		SerialPort serialPort = (SerialPort) CommPortIdentifier.getPortIdentifier(port.getDeviceName()).open("rxtx-tcp", COMMUNICATION_TIMEOUT);
 		try {
 			serialPort.enableReceiveTimeout(COMMUNICATION_TIMEOUT);
 			client.setSoTimeout(COMMUNICATION_TIMEOUT);
@@ -63,7 +63,7 @@ public class ClientHandler {
 				}
 			}
 
-			LOG.debug("exit condition: {} / {}", toClient.running, fromClient.running);
+			LOG.debug("exit condition: to-client running {} / from-client running {}", toClient.running, fromClient.running);
 
 			// 1: sleep some time, to let the two channels close in a nice manner
 			// 2: then, close the streams, probably forcing any blocking i/o to cancel
@@ -92,9 +92,9 @@ public class ClientHandler {
 			sleep(50);
 
 			if (toClient.running)
-				LOG.debug("client thread {} (to client) not finished normally (zombie thread)", toClientT.getName());
+				LOG.debug("client thread {} (to client) not finished normally (possible zombie thread? vm-thread still running: {})", toClientT.getName(), toClientT.isAlive());
 			if (fromClient.running)
-				LOG.debug("client thread {} (from client) not finished normally (zombie thread)", fromClientT.getName());
+				LOG.debug("client thread {} (from client) not finished normally (possible zombie thread? vm-thread still running: {})", fromClientT.getName(), fromClientT.isAlive());
 			if (toClient.throwable != null)
 				LOG.debug("client thread {} (to client) finished abnormally: {}", toClientT.getName(), toClient.throwable.toString());
 			if (fromClient.throwable != null)
