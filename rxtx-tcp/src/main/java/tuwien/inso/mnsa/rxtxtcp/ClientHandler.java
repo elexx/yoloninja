@@ -24,7 +24,7 @@ public class ClientHandler {
 	private final PortDefinition port;
 
 	public static final int COPY_BLOCK_SIZE = 1024 * 5;
-	public static final int COMMUNICATION_TIMEOUT = 500;
+	public static final int COMMUNICATION_TIMEOUT = 100;
 
 	public ClientHandler(Socket client, PortDefinition portDefinition) {
 		this.client = client;
@@ -62,6 +62,8 @@ public class ClientHandler {
 					// interrupted by toClient or fromClient, recheck in while condition
 				}
 			}
+			
+			toClient.cancel = fromClient.cancel = true;
 
 			LOG.debug("exit condition: to-client running {} / from-client running {}", toClient.running, fromClient.running);
 
@@ -72,7 +74,7 @@ public class ClientHandler {
 			// 5: sleep some more to let them notice that still-pending i/o has been interrupted
 			// 6: stop threads, if necessary
 
-			sleep(50);
+			sleep(COMMUNICATION_TIMEOUT);
 
 			close(netIn);
 			close(netOut);
@@ -89,7 +91,7 @@ public class ClientHandler {
 			stop(toClientT);
 			stop(fromClientT);
 
-			sleep(50);
+			sleep(10);
 
 			if (toClient.running)
 				LOG.debug("client thread {} (to client) not finished normally (possible zombie thread? vm-thread still running: {})", toClientT.getName(), toClientT.isAlive());
@@ -148,6 +150,7 @@ public class ClientHandler {
 		private final InputStream input;
 		private final OutputStream output;
 
+		private boolean cancel = false;
 		private boolean running = true;
 		private Throwable throwable;
 
@@ -162,7 +165,7 @@ public class ClientHandler {
 			try {
 				byte[] buffer = new byte[COPY_BLOCK_SIZE];
 
-				while (true) {
+				while (!cancel) {
 					try {
 						int read = input.read(buffer);
 
@@ -176,6 +179,7 @@ public class ClientHandler {
 				}
 
 				throwable = null;
+			} catch (ThreadDeath ignored) {
 			} catch (Throwable t) {
 				throwable = t;
 			} finally {
