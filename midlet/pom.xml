@@ -8,9 +8,9 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>Midlet</artifactId>
+	<artifactId>midlet</artifactId>
 	<packaging>jar</packaging>
-	<name>USBTest Midlet</name>
+	<name>USB CardReader Midlet</name>
 
 	<properties>
 		<me2Version>2.0.3</me2Version>
@@ -49,7 +49,6 @@
 	</dependencies>
 
 	<build>
-		<defaultGoal>install</defaultGoal>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -105,15 +104,6 @@
 							<exclude>true</exclude>
 						</dependency>
 					</dependencies>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>com.pyx4me</groupId>
-				<artifactId>obex-maven-plugin</artifactId>
-				<version>2.0.4</version>
-				<configuration>
-					<jarfile>Midlet-1.0-SNAPSHOT-me.jar</jarfile>
 				</configuration>
 			</plugin>
 		</plugins>

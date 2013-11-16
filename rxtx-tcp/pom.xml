@@ -10,7 +10,7 @@
 
 	<artifactId>rxtx-tcp</artifactId>
 	<packaging>jar</packaging>
-	<name>rxtx-tcp</name>
+	<name>RXTX-TCP Proxy</name>
 
 	<properties>
 		<mainClass>tuwien.inso.mnsa.rxtxtcp.Server</mainClass>
