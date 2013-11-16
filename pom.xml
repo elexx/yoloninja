@@ -20,7 +20,7 @@
 	</properties>
 
 	<modules>
-		<module>Midlet</module>
+		<module>midlet</module>
 		<module>rxtx-tcp</module>
 		<module>nokiacardterminal</module>
 		<module>commprotocol</module>
