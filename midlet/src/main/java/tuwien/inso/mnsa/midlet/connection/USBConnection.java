@@ -117,13 +117,8 @@ public class USBConnection implements Runnable {
 					break;
 
 				case Message.TYPE_CLOSE:
-					try {
-						cardConnector.open();
-						response = Message.createWithoutPayload(messageType);
-					} catch (IOException e) {
-						LOG.print("close", e);
-						response = Message.createWithoutPayload(Message.TYPE_ERROR);
-					}
+					cardConnector.close();
+					response = Message.createWithoutPayload(messageType);
 					break;
 
 				default:

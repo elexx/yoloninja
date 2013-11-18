@@ -68,6 +68,10 @@ public class CardConnector implements TargetListener {
 	}
 
 	public void open() throws IOException {
+		if (!isCardPresent()) {
+			throw new IOException("no card present");
+		}
+
 		if (!isOpen()) {
 			String url = cardProperties.getUrl(cardProperties.getConnectionNames()[0]);
 			LOG.print("openning connection " + url);
