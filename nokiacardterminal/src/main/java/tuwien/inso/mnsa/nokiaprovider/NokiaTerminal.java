@@ -23,7 +23,7 @@ public class NokiaTerminal extends CardTerminal {
 
 	@Override
 	public String getName() {
-		return NokiaTerminal.NAME;
+		return connection.getName();
 	}
 
 	@Override
