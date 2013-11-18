@@ -1,5 +1,7 @@
 package tuwien.inso.mnsa.nokiaprovider;
 
+import java.io.IOException;
+
 import javax.smartcardio.Card;
 import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
@@ -38,7 +40,11 @@ public class NokiaTerminal extends CardTerminal {
 	 */
 	@Override
 	public boolean isCardPresent() throws CardException {
-		return true;
+		try {
+			return connection.isCardPresent();
+		} catch (IOException e) {
+			throw new CardException(e);
+		}
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.smartcardio.ATR;
 import javax.smartcardio.Card;
 import javax.smartcardio.CardChannel;
+import javax.smartcardio.CardException;
 import javax.smartcardio.CardTerminal;
 import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CommandAPDU;
@@ -21,7 +22,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		Security.addProvider(new NokiaProvider());
 
-		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("alexwin7.wg11", 7989));
+		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("192.168.1.184", 7989));
 
 		CardTerminals cardTerminals = terminalFactory.terminals();
 		List<CardTerminal> cardTerminalList = cardTerminals.list();
@@ -36,12 +37,27 @@ public class Main {
 			ATR atr = card.getATR();
 			out("ATR: " + new String(atr.getBytes()));
 
-
 			CardChannel channel = card.getBasicChannel();
 			CommandAPDU command = new CommandAPDU(new byte[] { (byte) 0x00, (byte) 0xA4, (byte) 0x04, (byte) 0x00 });
 			out("sending SELECT " + bytesToHex(command.getData()));
 			ResponseAPDU response = channel.transmit(command);
 			out(response.toString() + ": " + bytesToHex(response.getData()));
+			out("Card present: " + ct.isCardPresent());
+
+			out("Remove card now (you have 2 sec)");
+			Thread.sleep(2000);
+			out("Rechecking...");
+
+			command = new CommandAPDU(new byte[] { (byte) 0x00, (byte) 0xA4, (byte) 0x04, (byte) 0x00 });
+			out("sending SELECT " + bytesToHex(command.getData()));
+			try {
+				response = channel.transmit(command);
+				out(response.toString() + ": " + bytesToHex(response.getData()));
+			} catch (CardException ex) {
+				out("Caught IOException: " + ex);
+			}
+			out("Card present: " + ct.isCardPresent());
+
 		}
 
 	}

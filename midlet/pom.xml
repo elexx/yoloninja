@@ -10,7 +10,7 @@
 
 	<artifactId>midlet</artifactId>
 	<packaging>jar</packaging>
-	<name>USB CardReader Midlet</name>
+	<name>USBCardReaderMidlet</name>
 
 	<properties>
 		<me2Version>2.0.3</me2Version>
