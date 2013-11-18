@@ -18,7 +18,7 @@ public class USBConnection implements Runnable {
 
 	private static final String COMMPORT_IDENTIFIER = "comm:USB1";
 
-	private final CardConnection cardConnection;
+	private final CardConnector cardConnector;
 	private CommConnection commConnection;
 	private InputStream inStream;
 	private OutputStream outStream;
@@ -26,8 +26,8 @@ public class USBConnection implements Runnable {
 	private volatile boolean isRunning;
 	private volatile boolean inCommunication;
 
-	public USBConnection(CardConnection cardConnection) {
-		this.cardConnection = cardConnection;
+	public USBConnection(CardConnector cardConnector) {
+		this.cardConnector = cardConnector;
 	}
 
 	public void run() {
@@ -73,8 +73,8 @@ public class USBConnection implements Runnable {
 				case Message.TYPE_APDU:
 					byte[] responsePayload;
 					try {
-						if (cardConnection.isCardPresent()) {
-							responsePayload = cardConnection.exchangeData(request.getPayload());
+						if (cardConnector.isCardPresent()) {
+							responsePayload = cardConnector.exchangeData(request.getPayload());
 							response = Message.createFrom(messageType, (byte) responsePayload.length, responsePayload);
 						} else {
 							LOG.print("TYPE_APDU request, but no card present");
@@ -91,8 +91,8 @@ public class USBConnection implements Runnable {
 					break;
 
 				case Message.TYPE_ATR:
-					if (cardConnection.isCardPresent()) {
-						byte[] uid = cardConnection.getUid().getBytes();
+					if (cardConnector.isCardPresent()) {
+						byte[] uid = cardConnector.getUid().getBytes();
 						response = Message.createFrom(messageType, (byte) uid.length, uid);
 					} else {
 						LOG.print("TYPE_ATR request, but no card present");
@@ -102,8 +102,29 @@ public class USBConnection implements Runnable {
 
 				case Message.TYPE_CARD:
 					responsePayload = new byte[1];
-					responsePayload[0] = (byte) (cardConnection.isCardPresent() ? 1 : 0);
+					responsePayload[0] = (byte) (cardConnector.isCardPresent() ? 1 : 0);
 					response = Message.createFrom(messageType, (byte) 1, responsePayload);
+					break;
+
+				case Message.TYPE_OPEN:
+					try {
+						cardConnector.open();
+						response = Message.createWithoutPayload(messageType);
+					} catch (IOException e) {
+						LOG.print("open", e);
+						response = Message.createWithoutPayload(Message.TYPE_ERROR);
+					}
+					break;
+
+				case Message.TYPE_CLOSE:
+					try {
+						cardConnector.open();
+						response = Message.createWithoutPayload(messageType);
+					} catch (IOException e) {
+						LOG.print("close", e);
+						response = Message.createWithoutPayload(Message.TYPE_ERROR);
+					}
+					break;
 
 				default:
 					LOG.print("Got unknown Message [0x" + Integer.toHexString(messageType & 0xFF) + "]");

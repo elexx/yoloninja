@@ -12,7 +12,7 @@ import javax.microedition.io.Connector;
 
 import tuwien.inso.mnsa.midlet.debug.Logger;
 
-public class CardConnection implements TargetListener {
+public class CardConnector implements TargetListener {
 
 	private static final Logger LOG = Logger.getLogger("CardConnection");
 
@@ -30,6 +30,10 @@ public class CardConnection implements TargetListener {
 	}
 
 	public byte[] exchangeData(byte[] request) throws IOException, ContactlessException {
+		if (!isOpen()) {
+			throw new IOException("no connection open");
+		}
+
 		try {
 			return connection.exchangeData(request);
 		} catch (IOException e) {
@@ -52,25 +56,27 @@ public class CardConnection implements TargetListener {
 			return;
 		}
 
-		TargetProperties tmp = targetProperties[0];
-		LOG.print("UID read: " + tmp.getUid());
+		TargetProperties properties = targetProperties[0];
+		LOG.print("UID read: " + properties.getUid());
 
-		if (tmp.hasTargetType(TargetType.ISO14443_CARD) && tmp.getConnectionNames().length > 0) {
-			if (connection != null) {
-				closeSilently(connection);
-			}
-			try {
-				String url = tmp.getUrl(tmp.getConnectionNames()[0]);
-				LOG.print("openning connection " + url);
-				connection = (ISO14443Connection) Connector.open(url);
-				cardProperties = tmp;
-			} catch (IOException e) {
-				LOG.print("could not create iso14443 connection: " + e.toString());
-				return;
-			}
+		if (properties.hasTargetType(TargetType.ISO14443_CARD) && properties.getConnectionNames().length > 0) {
+			close();
+			cardProperties = properties;
 
-			LOG.print("opened connection");
+			LOG.print("card detected");
 		}
+	}
+
+	public void open() throws IOException {
+		if (!isOpen()) {
+			String url = cardProperties.getUrl(cardProperties.getConnectionNames()[0]);
+			LOG.print("openning connection " + url);
+			connection = (ISO14443Connection) Connector.open(url);
+		}
+	}
+
+	public boolean isOpen() {
+		return connection != null;
 	}
 
 	private static void closeSilently(Connection connection) {

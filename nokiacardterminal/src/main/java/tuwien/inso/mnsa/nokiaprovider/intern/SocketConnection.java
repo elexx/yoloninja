@@ -99,6 +99,32 @@ public class SocketConnection implements Connection {
 		return payload.length == 1 && payload[0] == 1;
 	}
 
+	@Override
+	public String getName() {
+		return address.toString();
+	}
+
+	@Override
+	public void openCardConnection() throws IOException {
+		Message requestMessage = Message.createWithoutPayload(Message.TYPE_OPEN);
+		requestMessage.write(outStream);
+		outStream.flush();
+		
+		Message responseMessage = Message.createFrom(inStream);
+		assertNoErrorOrThrowException(responseMessage);
+	}
+
+	@Override
+	public void closeCardConnection() throws IOException {
+		Message requestMessage = Message.createWithoutPayload(Message.TYPE_CLOSE);
+		requestMessage.write(outStream);
+		outStream.flush();
+		
+		Message responseMessage = Message.createFrom(inStream);
+		assertNoErrorOrThrowException(responseMessage);
+	}
+
+
 	private void assertNoErrorOrThrowException(Message m) throws IOException {
 		if (m.getMessageType() == Message.TYPE_ERROR) {
 			throw new IOException("Phone sent TYPE_ERROR - check phone output for more information. (Maybe no card present?)");
@@ -111,10 +137,4 @@ public class SocketConnection implements Connection {
 		} catch (IOException ignored) {
 		}
 	}
-
-	@Override
-	public String getName() {
-		return address.toString();
-	}
-
 }

@@ -15,6 +15,8 @@ public class Message {
 	public static final byte TYPE_APDU = 0x01;
 	public static final byte TYPE_ATR = 0x02;
 	public static final byte TYPE_CARD = 0x03;
+	public static final byte TYPE_OPEN = 0x04;
+	public static final byte TYPE_CLOSE = 0x05;
 	public static final byte TYPE_ERROR = 0x7F;
 
 	private static final short OFFSET_MTY = 0;

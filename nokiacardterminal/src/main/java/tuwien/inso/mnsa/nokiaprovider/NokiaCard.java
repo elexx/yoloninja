@@ -92,6 +92,11 @@ public class NokiaCard extends Card {
 	 */
 	@Override
 	public void disconnect(boolean bln) throws CardException {
+		try {
+			connection.closeCardConnection();
+		} catch (IOException e) {
+			throw new CardException(e);
+		}
 	}
 
 	public ResponseAPDU transmitCommand(CommandAPDU capdu) throws CardException {

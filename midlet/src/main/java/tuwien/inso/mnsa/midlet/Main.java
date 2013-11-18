@@ -11,7 +11,7 @@ import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.midlet.MIDlet;
 
-import tuwien.inso.mnsa.midlet.connection.CardConnection;
+import tuwien.inso.mnsa.midlet.connection.CardConnector;
 import tuwien.inso.mnsa.midlet.connection.USBConnection;
 import tuwien.inso.mnsa.midlet.debug.Logger;
 import tuwien.inso.mnsa.midlet.debug.UidPrinter;
@@ -21,7 +21,7 @@ public class Main extends MIDlet {
 	private static final Logger LOG = Logger.getLogger("Main");
 
 	private Form form;
-	private CardConnection cardConnection;
+	private CardConnector cardConnector;
 	private USBConnection usbConnection;
 
 	public void startApp() {
@@ -41,8 +41,8 @@ public class Main extends MIDlet {
 			}
 		});
 
-		cardConnection = new CardConnection();
-		usbConnection = new USBConnection(cardConnection);
+		cardConnector = new CardConnector();
+		usbConnection = new USBConnection(cardConnector);
 
 		TargetListener uidPrinter = new UidPrinter();
 
@@ -50,7 +50,7 @@ public class Main extends MIDlet {
 
 		try {
 			DiscoveryManager dm = DiscoveryManager.getInstance();
-			dm.addTargetListener(cardConnection, TargetType.ISO14443_CARD);
+			dm.addTargetListener(cardConnector, TargetType.ISO14443_CARD);
 			dm.addTargetListener(uidPrinter, TargetType.NDEF_TAG);
 			dm.addTargetListener(uidPrinter, TargetType.RFID_TAG);
 		} catch (ContactlessException ce) {
@@ -62,7 +62,7 @@ public class Main extends MIDlet {
 	}
 
 	public void destroyApp(boolean unconditional) {
-		cardConnection.close();
+		cardConnector.close();
 		usbConnection.stop();
 		usbConnection.close();
 	}

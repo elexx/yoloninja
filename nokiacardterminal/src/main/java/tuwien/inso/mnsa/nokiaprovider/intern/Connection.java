@@ -23,4 +23,8 @@ public interface Connection {
 
 	String getName();
 
+	void closeCardConnection() throws IOException;
+
+	void openCardConnection() throws IOException;
+
 }

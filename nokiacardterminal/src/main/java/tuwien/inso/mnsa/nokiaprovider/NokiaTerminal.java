@@ -30,6 +30,12 @@ public class NokiaTerminal extends CardTerminal {
 
 	@Override
 	public Card connect(String string) throws CardException {
+		try {
+			connection.openCardConnection();
+		} catch (IOException e) {
+			throw new CardException(e);
+		}
+
 		if (NokiaTerminal.card == null)
 			NokiaTerminal.card = new NokiaCard(connection);
 		return NokiaTerminal.card;
