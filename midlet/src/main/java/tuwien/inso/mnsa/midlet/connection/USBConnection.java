@@ -26,7 +26,6 @@ public class USBConnection implements Runnable {
 	private volatile boolean isRunning;
 	private volatile boolean inCommunication;
 
-
 	public USBConnection(CardConnection cardConnection) {
 		this.cardConnection = cardConnection;
 	}
@@ -50,7 +49,7 @@ public class USBConnection implements Runnable {
 				Message request;
 				try {
 					request = Message.createFrom(inStream);
-				}catch (IOException e) {
+				} catch (IOException e) {
 					LOG.print("read message" + e);
 					closeSilently(inStream);
 					closeSilently(outStream);
@@ -101,6 +100,10 @@ public class USBConnection implements Runnable {
 					}
 					break;
 
+				case Message.TYPE_CARD:
+					responsePayload = new byte[1];
+					responsePayload[0] = (byte) (cardConnection.isCardPresent() ? 1 : 0);
+					response = Message.createFrom(messageType, (byte) 1, responsePayload);
 
 				default:
 					LOG.print("Got unknown Message [0x" + Integer.toHexString(messageType & 0xFF) + "]");
@@ -113,7 +116,7 @@ public class USBConnection implements Runnable {
 						response.write(outStream);
 						outStream.flush();
 					}
-				}catch (IOException e) {
+				} catch (IOException e) {
 					LOG.print("sending response", e);
 					closeSilently(inStream);
 					closeSilently(outStream);
