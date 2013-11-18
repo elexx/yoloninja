@@ -1,15 +1,12 @@
-yoloninja - A Nokia 6212 NFC cardreader and maybe more
-=========
+# yoloninja - A Nokia 6212 NFC cardreader and maybe more
 
 Developed as part of the exercises of the "(Mobile) Network Services and Applications" lecture at Vienna University of Technology (TU Vienna) by Michael Borkowski and Alexander Falb.
 
-Native requirements
----------
+## Native requirements
 
 Since the responsible serial communication library, NRJavaSerial, loads its native dependencies dynamically at runtime, no native pre-requisites for this project exist.
 
-Setup
----------
+## Setup
 
 Since the developement phone (Nokia 6212) has limited driver support for non-Windows operating systems (regarding the serial interface), we modularized the project a little bit:
 
