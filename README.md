@@ -24,13 +24,13 @@ Exapmles:
 	7989:/dev/ttyUSB1:9600:8:n:1
 	7989:COM3
 
-Not that all parameters except for the TCP port and the serial device name are optional and filled with default values (`9600:8:n:1`) if ommitted.
+Note that all parameters except for the TCP port and the serial device name are optional and filled with default values (`9600:8:n:1`) if ommitted.
 
 ### Step 2: Start the rxtx-tcp module
 
 After configuring it, the rxtx-tcp module can be started:
 
-	> java -jar rxtx-tcp-1.0-SNAPSHOT-jar-with-dependencies.jar 
+	> java -jar rxtx-tcp-1.0-SNAPSHOT-jar-with-dependencies.jar
 	20:13:44.632 [main] INFO  tuwien.inso.mnsa.rxtxtcp.Server - Listing ports:
 	20:13:44.635 [main] INFO  tuwien.inso.mnsa.rxtxtcp.Server - COM1 (1, current owner null)
 	20:13:44.635 [main] INFO  tuwien.inso.mnsa.rxtxtcp.Server - COM4 (1, current owner null)
@@ -44,11 +44,10 @@ One would usually configure the SPI provider to use the correct serial port, how
 
 Exapmle:
 
-
-		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("192.168.1.184", 7989));
+	TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("192.168.1.184", 7989));
 
 This command instanciates a new connection to the given host/port combination. As defined in the Java specifications, a host name can also be used instead of an IP address:
 
-		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("athena", 7989));
+	TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("athena", 7989));
 
 After this, the terminalFactory can be used normally.
