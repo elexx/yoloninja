@@ -10,7 +10,8 @@ import javax.smartcardio.ResponseAPDU;
 public interface Connection {
 
 	/**
-	 * Establishes this connection. does nothing if the connection is already established.
+	 * Establishes this connection. does nothing if the connection is already
+	 * established.
 	 * 
 	 * @return
 	 * @throws IOException
@@ -34,7 +35,8 @@ public interface Connection {
 	boolean isConnected();
 
 	/**
-	 * Returns true if there has been a card present and no communication error happened since then and the connection has not been closed.
+	 * Returns true if there has been a card present and no communication error
+	 * happened since then and the connection has not been closed.
 	 * 
 	 * @throws IOException
 	 */
@@ -45,7 +47,8 @@ public interface Connection {
 	 * 
 	 * @return
 	 * @throws IOException
-	 *             if no card is present or some communication error occurred.
+	 *             if no card is present, no logical connection to it is
+	 *             established or some communication error occurred.
 	 */
 	ResponseAPDU transceive(CommandAPDU capdu) throws IOException;
 
@@ -64,8 +67,23 @@ public interface Connection {
 	 */
 	String getName();
 
+	/**
+	 * Closes the previously established connection (channel) to the card. If no
+	 * connection is established, this method does nothing.
+	 * 
+	 * @throws IOException
+	 *             If a problem occurs during the closing of the channel
+	 */
 	void closeCardConnection() throws IOException;
 
+	/**
+	 * Opens the logical connection (channel) to the card (to enable sending
+	 * APDUs down the channel). If the connection is already established, this
+	 * method does nothing.
+	 * 
+	 * @throws IOException
+	 *             If a problem occurs during the opening of the channel
+	 */
 	void openCardConnection() throws IOException;
 
 }
