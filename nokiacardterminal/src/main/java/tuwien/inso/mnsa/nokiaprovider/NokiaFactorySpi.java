@@ -6,7 +6,7 @@ import javax.smartcardio.CardTerminals;
 import javax.smartcardio.TerminalFactorySpi;
 
 import tuwien.inso.mnsa.nokiaprovider.intern.Connection;
-import tuwien.inso.mnsa.nokiaprovider.intern.TCPConnection;
+import tuwien.inso.mnsa.nokiaprovider.intern.SocketConnection;
 
 @SuppressWarnings("restriction")
 public class NokiaFactorySpi extends TerminalFactorySpi {
@@ -20,7 +20,7 @@ public class NokiaFactorySpi extends TerminalFactorySpi {
 	public NokiaFactorySpi(Object parameter) {
 		InetSocketAddress address = (parameter instanceof InetSocketAddress) ? (InetSocketAddress) parameter : new InetSocketAddress("localhost", 9787);
 
-		Connection connection = new TCPConnection(address);
+		Connection connection = new SocketConnection(address);
 		cardTerminals = new NokiaTerminals(connection);
 	}
 

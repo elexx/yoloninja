@@ -17,16 +17,16 @@ import org.slf4j.LoggerFactory;
 import tuwien.inso.mnsa.protocol.Message;
 
 @SuppressWarnings("restriction")
-public class TCPConnection implements Connection {
+public class SocketConnection implements Connection {
 
-	private static final Logger LOG = LoggerFactory.getLogger(TCPConnection.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SocketConnection.class);
 
 	private final SocketAddress address;
 	private Socket socket;
 	private InputStream inStream;
 	private OutputStream outStream;
 
-	public TCPConnection(SocketAddress address) {
+	public SocketConnection(SocketAddress address) {
 		this.address = address;
 	}
 
@@ -97,6 +97,11 @@ public class TCPConnection implements Connection {
 			closeable.close();
 		} catch (IOException ignored) {
 		}
+	}
+
+	@Override
+	public String getName() {
+		return address.toString();
 	}
 
 }

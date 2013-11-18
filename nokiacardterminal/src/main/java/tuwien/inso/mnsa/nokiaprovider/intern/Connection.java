@@ -19,4 +19,6 @@ public interface Connection {
 
 	ATR getATR() throws IOException;
 
+	String getName();
+
 }
