@@ -14,6 +14,8 @@ public interface Connection {
 	void disconnect();
 
 	boolean isConnected();
+	
+	boolean isCardPresent() throws IOException;
 
 	ResponseAPDU transceive(CommandAPDU capdu) throws IOException;
 

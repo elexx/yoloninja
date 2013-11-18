@@ -14,6 +14,7 @@ public class Message {
 	public static final byte TYPE_TEST = 0x00;
 	public static final byte TYPE_APDU = 0x01;
 	public static final byte TYPE_ATR = 0x02;
+	public static final byte TYPE_CARD = 0x03;
 	public static final byte TYPE_ERROR = 0x7F;
 
 	private static final short OFFSET_MTY = 0;
@@ -40,7 +41,7 @@ public class Message {
 
 	public static Message createFrom(InputStream inStream) throws IOException {
 		byte[] buffer = new byte[2];
-		readExacltyToLength(inStream, buffer, 0, 2);
+		readFully(inStream, buffer, 0, 2);
 
 		byte messageType = buffer[OFFSET_MTY];
 		byte length = buffer[OFFSET_LN];
@@ -48,7 +49,7 @@ public class Message {
 		byte[] payload = null;
 		if (length > 0) {
 			payload = new byte[length];
-			readExacltyToLength(inStream, payload, 0, length);
+			readFully(inStream, payload, 0, length);
 		}
 		return new Message(messageType, length, payload);
 	}
@@ -76,7 +77,7 @@ public class Message {
 		return "MTY[" + messageType + "] LN[" + length + "] PY[" + payload + "]";
 	}
 
-	private static void readExacltyToLength(InputStream inStream, byte[] output, int offset, int length) throws IOException {
+	private static void readFully(InputStream inStream, byte[] output, int offset, int length) throws IOException {
 		int total = 0;
 		while (total < length) {
 			int read = inStream.read(output, offset + total, length - total);

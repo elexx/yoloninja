@@ -58,7 +58,7 @@ public class SocketConnection implements Connection {
 	public ResponseAPDU transceive(CommandAPDU request) throws IOException {
 		byte[] apdubuffer = request.getBytes();
 		if (apdubuffer.length > 0xff) {
-			throw new IOException("to long APDU");
+			throw new IOException("too long APDU");
 		}
 
 		byte length = (byte) (apdubuffer.length & 0xff);
@@ -84,6 +84,19 @@ public class SocketConnection implements Connection {
 		assertNoErrorOrThrowException(responseMessage);
 
 		return new ATR(responseMessage.getPayload());
+	}
+
+	@Override
+	public boolean isCardPresent() throws IOException {
+		Message requestMessage = Message.createWithoutPayload(Message.TYPE_CARD);
+		requestMessage.write(outStream);
+		outStream.flush();
+		
+		Message responseMessage = Message.createFrom(inStream);
+		assertNoErrorOrThrowException(responseMessage);
+		
+		byte[] payload = responseMessage.getPayload();
+		return payload.length == 1 && payload[0] == 1;
 	}
 
 	private void assertNoErrorOrThrowException(Message m) throws IOException {
