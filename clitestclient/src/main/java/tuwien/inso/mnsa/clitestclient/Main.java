@@ -59,6 +59,7 @@ public class Main {
 			out("Card present: " + ct.isCardPresent());
 
 			card.disconnect(true);
+			out("Disconnected.");
 		}
 
 	}

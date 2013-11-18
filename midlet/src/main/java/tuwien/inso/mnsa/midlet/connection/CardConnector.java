@@ -26,7 +26,7 @@ public class CardConnector implements TargetListener {
 	}
 
 	public boolean isCardPresent() {
-		return connection != null;
+		return cardProperties != null;
 	}
 
 	public byte[] exchangeData(byte[] request) throws IOException, ContactlessException {
