@@ -1,0 +1,175 @@
+\documentclass[paper=a4, fontsize=11pt]{scrartcl}
+\usepackage[svgnames]{xcolor}
+\usepackage[a4paper,pdftex]{geometry}
+
+\usepackage[german]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage{fullpage}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+	\fancyhead[L]{INSO - Industrial Software\\ \small{Institut für Rechnergestützte Automation | Fakultät für Informatik | Technische Universität Wien}}
+	\fancyhead[C]{}
+	\fancyhead[R]{}
+	\fancyfoot[L]{J2ME-Cardreader für ISO/IEC 14443-Kommunkation}
+	\fancyfoot[C]{}
+	\fancyfoot[R]{Seite \thepage}
+	\renewcommand{\headrulewidth}{1pt}
+	\renewcommand{\footrulewidth}{1pt}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{0.75cm}
+
+\usepackage{hyperref}
+	\hypersetup{
+		colorlinks,
+		citecolor=black,
+		filecolor=black,
+		linkcolor=black,
+		urlcolor=black
+	}
+
+\usepackage{pdfpages}
+
+\usepackage[babel,german=quotes]{csquotes}
+
+% ------------------------------------------------------------------------------
+% Title Setup
+% ------------------------------------------------------------------------------
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}} % Horizontal rule
+
+\makeatletter               % Title
+\def\printtitle{%
+	{\centering \@title\par}}
+\makeatother
+
+\makeatletter               % Author
+\def\printauthor{%
+	{\centering \normalsize \@author}}
+\makeatother
+
+
+\title{	\normalsize Erstellung eines J2ME-Cardreaders für Kontaktloskommunikation (ISO/IEC 14443)% Subtitle of the document
+	\\[2.0cm] \HRule{0.5pt} \\
+	\LARGE \textbf{\uppercase{Dokumentation Übung 1}} % Title
+	\HRule{2pt} \\[1.5cm]
+	\normalsize Wien am \today \\
+	\normalsize Technische Universität Wien \\[1.0cm]
+	\normalsize ausgeführt im Rahmen der Lehrveranstaltung \\
+	\LARGE 183.286 – (Mobile) Network Service Applications
+}
+
+
+\author{
+	Gruppe 7 \\[2.0cm]
+	Alexander Falb \\
+	0925915 \\
+	E 033 534 \\
+	Software and Information Engineering \\[2.0cm]
+	Michael Borkowski \\
+	0925853 \\
+	E 066 937 \\
+	Software Engineering and Internet Computing \\[2.0cm]
+}
+
+\begin{document}
+% ------------------------------------------------------------------------------
+% Title Page
+% ------------------------------------------------------------------------------
+\thispagestyle{empty} % Remove page numbering on this page
+\printtitle
+	\vfill
+\printauthor
+
+% ------------------------------------------------------------------------------
+% Table of Contents
+% ------------------------------------------------------------------------------
+\newpage
+\tableofcontents
+
+% ------------------------------------------------------------------------------
+% Document
+% ------------------------------------------------------------------------------
+\newpage
+\section{Kurzfassung}
+Dieses Dokument stellt den Abschlussbericht der ersten Übung der LVA \enquote{(Mobile) Network Service Applications} dar. Konkret handelt es sich um den Abgabebericht der Gruppe 7 (Falb und Borkowski).
+
+Die Übung bestand in der Entwicklung eines J2ME-Cardreaders zur Kommunikation mit ISO/IEC-14443-konformen Karten mittels eines über USB angeschlossenen Telefons mit darauf laufendem MIDlet. Die Anbindung an die Benutzeranwendung wird über einen ebenfalls zu implementierenden entsprechenden Java-Smartcard-SPI-Provider realisiert.
+
+
+\section{Einleitung}
+Die Vorgabe der Lehrveranstaltung war das Entwickeln eines Kartenlesegerätes auf Basis eines Java-ME-fähigen Telefons. Das Lesegerät sollte über ein USB-Kabel mittels serieller Übertragung ansprechbar sein und eine entsprechende Anbindung an die Java-Smartcard-SPI als Provider.
+
+
+\section{Problemstellung / Zielsetzung}
+\subsection{Kommunikation zwischen Telefon und Smartcard}
+Es war eine Java-ME-Applikation (MIDlet) zu entwickeln, welche kontaktlos mit einer Smartcard kommunizieren kann. Hierfür wird die JSR257-API verwendet, welche das zur Verfügung gestellte Gerät (Nokia 6212) unterstützt. Die bereitgestellte Karte ist eine Java Card, welche sich auch gemäß ISO/IEC 14443 verhält, und wird zum Testen der Verbindung verwendet.
+
+\subsection{Physische Kommunikation zwischen Computer und Telefon}
+Das Telefon soll per USB-Kabel an den PC angeschlossen sein und so den PC um eine Kontaktlosschnittstelle erweitern. Logisch stellt das Telefon eine serielle Schnittstelle zur Verfügung, über die mit dem MIDlet kommuniziert werden kann.
+
+Die PC-seitige Komponente ist ebenfalls in Java zu schreiben. Ursprüngliche Vorgabe war die Verwendung von RXTX oder der JavaComm-API als Schnittstelle (diese wurde später abgeändert, wie im Verlauf dieses Berichts erklärt wird).
+
+\subsection{Logische Kommunikation zwischen SPI-Provider und MIDlet}
+Der SPI-Provider kommuniziert, wie beschrieben, über eine serielle Schnittstelle mit dem MIDlet. Hierbei wird ein von der LVA-Leitung angegebenes Protokoll vorgeschlagen (4 Byte Header gefolgt von Payload).
+
+\subsection{Logische Kommunikation zwischen User-Applikation und SPI-Provider}
+Der SPI-Provider soll über die gewöhnliche Java-Schnittstelle (Java Smartcard IO) verwendet werden. Die Verwendung dieser Schnittstelle geht über den Rahmen dieses Dokuments hinaus (und ihre Verwendung ist – bis auf eine Test-Implementierung – auch nicht Teil der Übung).
+
+
+\section{2. Methodisches Vorgehen}
+\subsection{Seriell-Proxy}
+Da von Nokia nur begrenzt Nicht-Windows-Versionen der USB-Treiber zur Verfügung gestellt wurden, wir nicht primär unter Windows entwickeln und es uns in einem initialen Setup nicht gelungen ist, das Telefon auf Linux oder OSX als serielle Schnittstelle zu erkennen, haben wir uns entschlossen, eine weitere Modularisierung einzuführen. Anstatt aus dem SPI-Provider direkt mit der seriellen Schnittstelle zu kommunizieren, wird über Netzwerk eine Verbindung zu einem Server aufgebaut, der dann einen seriellen Port öffnet und die Daten zwischen der Netzwerkverbindung und der seriellen Schnittstelle in beide Richtungen weiterleitet. Diesen \enquote{Seriell-Proxy} haben wir während der Entwicklung auf einer Windows-Maschine gestartet, während das reguläre Testen in unserer gewohnten Umgebung (auf Linux bzw. OSX) stattfinden konnte.
+
+Um dies zu testen, verwendeten wir verschiedene Geräte, welche eine serielle Schnittstelle zur Verfügung stellten (3G-Modem, USB-RS232-Adapter, etc.).
+
+Die endgültige Implementierung verwendet zur seriellen Kommunikation NRJavaSerial, eine Library die einen Fork von RXTX darstellt. Eigenschaft dieses Forks ist, dass die native Libraries automatisch zur Laufzeit ausgewählt und geladen werden und keine vorhergehende Systemeinstellung (oder Umstellung von Laufzeitvariablen) vonnöten ist. Dies erhöht die Robustheit des Endprodukts.
+
+\subsection{MIDlet}
+Nachdem das Herstellen der seriellen Verbindung erfolgreich war, haben wir ein Protokoll entwickelt, welches sich sinngemäß an das von der LVA-Leitung vorgegebene Protokoll anlehnt. Die Unterschiede sind dass wir die Länge nur in einem Byte übertragen (da eine größere Länge als 255 aufgrund der APDU-Constraints nicht notwendig ist) und keine Node Address (NAD) haben. Da jedes Byte zur Verzögerung beiträgt, haben wir so die größtmögliche Zeitersparnis erzielt.
+
+Da das Protokoll sowohl am MIDlet als auch auf der SPI-Seite verfügbar sein muss, wurde dies von uns in einem Maven-Modul realisiert. Dies stellte sich als sehr vorteilhaft heraus, da die Serialisierung nur ein mal implementiert werden musste.
+
+\subsection{SPI-Provider}
+Gemäß Angabe wurde ebenfalls die SPI-seitige Implementierung realisiert. Hierzu wurde ein Provider geschrieben, welchem eine Netzwerkverbindung (InetSocketAddress, bestehend aus Hostname und Port) übergeben wird. Anhand dieser Verbindungsinformation wird über TCP mit dem Seriell-Proxy kommuniziert, welcher im Endeffekt die Daten von und zu dem seriellen Anschluss (eigentlich USB-Kabel und Verbindung zum MIDlet) weiterleitet. Hierbei wurde das oben genannte Protokoll verwendet (angelehnt an die LVA-Empfehlung).
+
+\subsection{CLI Test Client}
+Das Modul \enquote{clitestclient} ist eine Test Applikation, welche den SPI-Provider verwendet. Maven ist konfiguriert dieses Modul als Runnable-Jar zu packen. Achtung: Eventuell muss vor dem Kompilieren der Host und Port (standartmäßig auf localhost:7989) geändert werden, um eine Kommunikation mit dem Seriell-Proxy zu ermöglichen!
+
+\section{Designentscheidungen}
+\subsection{Verwendung von RXTX/JavaComm API/NRJavaSerial}
+Eine Designentscheidung war die Auswahl der Comm-Library für die serielle Übertragung. Es folgt eine Gegenüberstellung der evaluierten Lösungen:
+
+\subsubsection{RXTX}
+RXTX bietet eine relativ robuste und gute Lösung und wird auch an vielen Stellen empfohlen. Vorteil von RXTX ist die Quelloffenheit und die Tatsache, dass die JAR-Files als Maven-Dependency vorliegen und direkt verwendbar sind. Nachteil ist die Abhängigkeit von bereits verfügbaren native Libraries.
+
+\subsubsection{JavaComm API}
+Die JavaComm-API-Implementierung von Oracle benutzt die gleiche API wie RXTX, ist jedoch nicht quelloffen und unter einer Lizenz veröffentlicht welche verhindert, dass es ein offizielles Maven Artefakt der Library gibt (die JAR-Files müssen von Oracle heruntergeladen werden). Da die Lösung keine Vorteile gegenüber RXTX bietet, denn auch hier müssen neben den JAR-Dependencies auch native Libraries von Hand installiert werden, haben wir sie nicht weiter in Betracht gezogen.
+
+\subsubsection{NRJavaSerial}
+Der Nachteil von RXTX, dass native Libraries zur Laufzeit verfügbar sein müssen, stellt für den Deployment-Prozess bzw. den Benutzer, welcher das Produkt startet, eine weitere Komplikation (bzw. Fehlerquelle) dar. Da die Library NRJavaSerial ein Fork von RXTX ist, welcher zu RXTX API-kompatibel ist und somit als drop-in-replacement verwendet werden kann, aber im gegensatz zum Ursprungsproket seine native Libraries zur Laufzeit selbst deployed und als Maven-Dependency quasi \enquote{out of the box} funktioniert, haben wir uns hierfür entschieden.
+
+\subsection{Erkennung des Telefons als serielle Schnittstelle}
+Wie bereits beschrieben wurde das Telefon bei uns nur unter Windows richtig als serielle Schnittstelle erkannt (abgesehen von der Modem-Schnittstelle, die für diese Übung aber nicht relevant war), weswegen wir, wie ebenfalls beschrieben, schlussendlich einen Netzwerk-Serial-Proxy implementiert haben, um erstens die Flexibilität zu erhöhen, und zweitens uns ein Entwickeln in unserer gewohnten Umgebung (Linux bzw. OSX) zu ermöglichen. Außerdem wurde dadurch eine strengere Trennung zwischen RS232-Kommunikation und der Serialisierung der Anfragen (welche sich im SPI-Teil befindet) erzielt.
+
+
+\section{Inbetriebnahme}
+Der Code wird mittels des Befehls \texttt{mvn} kompiliert und gepackt. Alle nachfolgenden Pfadangaben in den Kapiteln verstehen sich relativ zu dem Pfad der jeweiligen Kapitelüberschrift.
+
+\subsection{MIDlet - \texttt{/midlet/}}
+Das MIDlet, bestehend aus einer JAD und einer JAR Datei mit dem Namen \texttt{midlet-1.0-SNAPSHOT-me}, muss am Telefon deployed, beispielsweise beide Dateien per Bluetooth auf das Telefon kopieren, und gestartet werden.
+
+\subsection{Seriel-Proxy -  \texttt{/rxtx-tcp/}}
+Der Proxy ist als Runnable-JAR gepackt und kann direkt, ohne weiter Konfiguration, gestartet werden. Standardmäßig wird eine eingehende TCP-Verbindung auf Port 7989 mit der seriellen Schnittstelle \enquote{COM1} verbunden. Heißt die zu verwendende serielle Schnittstelle nicht COM1, kann dies mittels Konfigurationsdatei, welche \texttt{ports.conf} heißen und in der Workingdirectory liegen muss, geändert werden, siehe dazu auch die Beispieldatei \texttt{src/main/resources/ports.conf}
+
+\subsection{CLITestClient -  \texttt{/clitestclient/}}
+Auch der CLITestClient wird als Runnable-JAR gepackt und kann direkt gestartet werden. Es ist nicht notwendig den SPI-Provider im JRE händisch zu registrieren, dies tut der TestClient beim Starten automatisch.
+
+Ist der Seriel-Proxy nicht unter \enquote{localhost:7989} erreichbar, muss dies vor dem kompilieren im Code geändert werden, da sonst kein CardTerminal gefunden wird.
+
+
+\section{Resultat}
+Das Endergebnis ist eine vollständige Implementierung der geforderten Komponenten. Getestet wurde mit einer Test-Main-Klasse (ebenfalls in der Abgabe enthalten), welche unter anderem ein SELECT-APDU an die Karte schickt und die Antwort (im Regelfall auf 9000 endend) ausliest. Mit der mitgelieferten Java Card funktioniert dies  einwandfrei.
+
+\end{document}
