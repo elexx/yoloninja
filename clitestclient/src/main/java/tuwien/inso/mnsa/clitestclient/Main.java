@@ -22,7 +22,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		Security.addProvider(new NokiaProvider());
 
-		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("192.168.1.184", 7989));
+		TerminalFactory terminalFactory = TerminalFactory.getInstance("NokiaProvider", new InetSocketAddress("localhost", 7989));
 
 		CardTerminals cardTerminals = terminalFactory.terminals();
 		List<CardTerminal> cardTerminalList = cardTerminals.list();
