@@ -118,7 +118,7 @@ Der SPI-Provider kommuniziert, wie beschrieben, über eine serielle Schnittstell
 Der SPI-Provider soll über die gewöhnliche Java-Schnittstelle (Java Smartcard IO) verwendet werden. Die Verwendung dieser Schnittstelle geht über den Rahmen dieses Dokuments hinaus (und ihre Verwendung ist – bis auf eine Test-Implementierung – auch nicht Teil der Übung).
 
 
-\section{2. Methodisches Vorgehen}
+\section{Methodisches Vorgehen}
 \subsection{Seriell-Proxy}
 Da von Nokia nur begrenzt Nicht-Windows-Versionen der USB-Treiber zur Verfügung gestellt wurden, wir nicht primär unter Windows entwickeln und es uns in einem initialen Setup nicht gelungen ist, das Telefon auf Linux oder OSX als serielle Schnittstelle zu erkennen, haben wir uns entschlossen, eine weitere Modularisierung einzuführen. Anstatt aus dem SPI-Provider direkt mit der seriellen Schnittstelle zu kommunizieren, wird über Netzwerk eine Verbindung zu einem Server aufgebaut, der dann einen seriellen Port öffnet und die Daten zwischen der Netzwerkverbindung und der seriellen Schnittstelle in beide Richtungen weiterleitet. Diesen \enquote{Seriell-Proxy} haben wir während der Entwicklung auf einer Windows-Maschine gestartet, während das reguläre Testen in unserer gewohnten Umgebung (auf Linux bzw. OSX) stattfinden konnte.
 
@@ -127,7 +127,7 @@ Um dies zu testen, verwendeten wir verschiedene Geräte, welche eine serielle Sc
 Die endgültige Implementierung verwendet zur seriellen Kommunikation NRJavaSerial, eine Library die einen Fork von RXTX darstellt. Eigenschaft dieses Forks ist, dass die native Libraries automatisch zur Laufzeit ausgewählt und geladen werden und keine vorhergehende Systemeinstellung (oder Umstellung von Laufzeitvariablen) vonnöten ist. Dies erhöht die Robustheit des Endprodukts.
 
 \subsection{MIDlet}
-Nachdem das Herstellen der seriellen Verbindung erfolgreich war, haben wir ein Protokoll entwickelt, welches sich sinngemäß an das von der LVA-Leitung vorgegebene Protokoll anlehnt. Die Unterschiede sind dass wir die Länge nur in einem Byte übertragen (da eine größere Länge als 255 aufgrund der APDU-Constraints nicht notwendig ist) und keine Node Address (NAD) haben. Da jedes Byte zur Verzögerung beiträgt, haben wir so die größtmögliche Zeitersparnis erzielt.
+Nachdem das Herstellen der seriellen Verbindung erfolgreich war, haben wir ein Protokoll entwickelt, welches sich sinngemäß an das von der LVA-Leitung vorgegebene Protokoll anlehnt. Die Unterschiede sind dass wir die Länge nur in einem Byte übertragen (da eine größere Länge als 255 aufgrund der APDU-Constraints nicht notwendig ist) und keine Node Address (NAD) verwenden. Da jedes Byte zur Verzögerung beiträgt, haben wir so die größtmögliche Zeitersparnis erzielt.
 
 Da das Protokoll sowohl am MIDlet als auch auf der SPI-Seite verfügbar sein muss, wurde dies von uns in einem Maven-Modul realisiert. Dies stellte sich als sehr vorteilhaft heraus, da die Serialisierung nur ein mal implementiert werden musste.
 
@@ -158,15 +158,15 @@ Wie bereits beschrieben wurde das Telefon bei uns nur unter Windows richtig als 
 Der Code wird mittels des Befehls \texttt{mvn} kompiliert und gepackt. Alle nachfolgenden Pfadangaben in den Kapiteln verstehen sich relativ zu dem Pfad der jeweiligen Kapitelüberschrift.
 
 \subsection{MIDlet - \texttt{/midlet/}}
-Das MIDlet, bestehend aus einer JAD und einer JAR Datei mit dem Namen \texttt{midlet-1.0-SNAPSHOT-me}, muss am Telefon deployed, beispielsweise beide Dateien per Bluetooth auf das Telefon kopieren, und gestartet werden.
+Das MIDlet, bestehend aus einer JAD und einer JAR Datei mit dem Namen \texttt{midlet-1.0-SNAPSHOT-me}, muss am Telefon deployed werden, beispielsweise indem beide Dateien per Bluetooth auf das Telefon kopiert werden, und kann danach gestartet werden.
 
-\subsection{Seriel-Proxy -  \texttt{/rxtx-tcp/}}
+\subsection{Seriell-Proxy -  \texttt{/rxtx-tcp/}}
 Der Proxy ist als Runnable-JAR gepackt und kann direkt, ohne weiter Konfiguration, gestartet werden. Standardmäßig wird eine eingehende TCP-Verbindung auf Port 7989 mit der seriellen Schnittstelle \enquote{COM1} verbunden. Heißt die zu verwendende serielle Schnittstelle nicht COM1, kann dies mittels Konfigurationsdatei, welche \texttt{ports.conf} heißen und in der Workingdirectory liegen muss, geändert werden, siehe dazu auch die Beispieldatei \texttt{src/main/resources/ports.conf}
 
 \subsection{CLITestClient -  \texttt{/clitestclient/}}
 Auch der CLITestClient wird als Runnable-JAR gepackt und kann direkt gestartet werden. Es ist nicht notwendig den SPI-Provider im JRE händisch zu registrieren, dies tut der TestClient beim Starten automatisch.
 
-Ist der Seriel-Proxy nicht unter \enquote{localhost:7989} erreichbar, muss dies vor dem kompilieren im Code geändert werden, da sonst kein CardTerminal gefunden wird.
+Ist der Seriell-Proxy nicht unter \enquote{localhost:7989} erreichbar, muss dies vor dem Kompilieren im Code geändert werden, da sonst kein CardTerminal gefunden wird.
 
 
 \section{Resultat}
